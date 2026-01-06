@@ -1,8 +1,24 @@
 const express = require("express");
 const vendorRoute = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Vendor
+ *   description: Vendor management API
+ */
 
-vendorRoute.get("/",(req,res)=>{
+/**
+ * @swagger
+ * /vendor:
+ *   get:
+ *     summary: Vendor route test
+ *     tags: [Vendor]
+ *     responses:
+ *       200:
+ *         description: Vendor route works
+ */
+vendorRoute.get("/", (req, res) => {
     res.send("vendor route")
 })
 

@@ -5,11 +5,41 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+
+model Admin {
+  id       String  @id
+  name     String
+  email    String  @unique
+  password String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Vendor {
+  id              String   @id
+  name            String
+  email           String   @unique
+  password        String
+  shopName        String
+  shopAddress     String
+  shopDescription String
+  bankName        String
+  IFSC            String
+  accountNumber   String
+  vendorTag       String?
+  isFeatured      Boolean  @default(false)
+  isVerified      Boolean  @default(false)
+  status          String   @default("pending")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
