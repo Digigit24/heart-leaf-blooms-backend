@@ -130,6 +130,84 @@ exports.Prisma.AdminScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.VendorScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  password: 'password',
+  shopName: 'shopName',
+  shopAddress: 'shopAddress',
+  shopDescription: 'shopDescription',
+  bankName: 'bankName',
+  IFSC: 'IFSC',
+  accountNumber: 'accountNumber',
+  vendorTag: 'vendorTag',
+  isFeatured: 'isFeatured',
+  isVerified: 'isVerified',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserScalarFieldEnum = {
+  user_id: 'user_id',
+  username: 'username',
+  user_email: 'user_email',
+  user_password: 'user_password',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AddressScalarFieldEnum = {
+  address_id: 'address_id',
+  user_id: 'user_id',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  pincode: 'pincode'
+};
+
+exports.Prisma.CartScalarFieldEnum = {
+  cart_id: 'cart_id',
+  user_id: 'user_id',
+  product_id: 'product_id',
+  quantity: 'quantity'
+};
+
+exports.Prisma.WishlistScalarFieldEnum = {
+  wishlist_id: 'wishlist_id',
+  user_id: 'user_id',
+  product_id: 'product_id'
+};
+
+exports.Prisma.ProductScalarFieldEnum = {
+  product_id: 'product_id',
+  vendor_id: 'vendor_id',
+  category_id: 'category_id',
+  product_name: 'product_name',
+  product_title: 'product_title',
+  product_description: 'product_description',
+  product_price: 'product_price',
+  discount_price: 'discount_price',
+  product_guide: 'product_guide',
+  is_available: 'is_available',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ImageScalarFieldEnum = {
+  image_id: 'image_id',
+  product_id: 'product_id',
+  img_url: 'img_url'
+};
+
+exports.Prisma.CategoryScalarFieldEnum = {
+  category_id: 'category_id',
+  category_name: 'category_name',
+  category_description: 'category_description',
+  category_icon: 'category_icon'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -140,9 +218,22 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
-  Admin: 'Admin'
+  Admin: 'Admin',
+  Vendor: 'Vendor',
+  User: 'User',
+  Address: 'Address',
+  Cart: 'Cart',
+  Wishlist: 'Wishlist',
+  Product: 'Product',
+  Image: 'Image',
+  Category: 'Category'
 };
 
 /**

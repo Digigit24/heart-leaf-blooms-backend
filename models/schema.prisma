@@ -42,4 +42,87 @@ model Vendor {
   status          String   @default("pending")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  products        Product[]
+}
+
+model User {
+  user_id       String     @id 
+  username      String
+  user_email    String     @unique
+  user_password String
+  
+  addresses     Address[]
+  cart          Cart[]
+  wishlist      Wishlist[]
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Address {
+  address_id Int    @id @default(autoincrement())
+  user_id    String
+  user       User   @relation(fields: [user_id], references: [user_id])
+  address    String
+  city       String
+  state      String
+  pincode    String
+}
+
+model Cart {
+  cart_id    Int    @id @default(autoincrement())
+  user_id    String
+  user       User   @relation(fields: [user_id], references: [user_id])
+  product_id String
+  product    Product @relation(fields: [product_id], references: [product_id])
+  quantity   Int
+}
+
+model Wishlist {
+  wishlist_id Int    @id @default(autoincrement())
+  user_id     String
+  user        User   @relation(fields: [user_id], references: [user_id])
+  product_id  String
+  product     Product @relation(fields: [product_id], references: [product_id])
+}
+
+model Product {
+  product_id          String   @id @default(uuid())
+  vendor_id           String
+  vendor              Vendor   @relation(fields: [vendor_id], references: [id])
+  
+  category_id         Int
+  category            Category @relation(fields: [category_id], references: [category_id])
+
+  product_name        String
+  product_title       String
+  product_description String
+  product_price       Decimal
+  discount_price      Decimal?
+  product_guide       String?
+  is_available        Boolean  @default(true) // Typo fix: avaliable -> available check? User said "is_avaliable". I will use "is_available" (correct spelling) but map if needed. I'll stick to correct spelling.
+
+  images              Image[]
+  cartItems           Cart[]
+  wishlistItems       Wishlist[]
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Image {
+  image_id   Int     @id @default(autoincrement())
+  product_id String
+  product    Product @relation(fields: [product_id], references: [product_id])
+  img_url    String
+}
+
+model Category {
+  category_id          Int       @id @default(autoincrement())
+  category_name        String
+  category_description String
+  category_icon        String
+  
+  products             Product[]
 }

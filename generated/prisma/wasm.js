@@ -102,6 +102,84 @@ exports.Prisma.AdminScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.VendorScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  password: 'password',
+  shopName: 'shopName',
+  shopAddress: 'shopAddress',
+  shopDescription: 'shopDescription',
+  bankName: 'bankName',
+  IFSC: 'IFSC',
+  accountNumber: 'accountNumber',
+  vendorTag: 'vendorTag',
+  isFeatured: 'isFeatured',
+  isVerified: 'isVerified',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserScalarFieldEnum = {
+  user_id: 'user_id',
+  username: 'username',
+  user_email: 'user_email',
+  user_password: 'user_password',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AddressScalarFieldEnum = {
+  address_id: 'address_id',
+  user_id: 'user_id',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  pincode: 'pincode'
+};
+
+exports.Prisma.CartScalarFieldEnum = {
+  cart_id: 'cart_id',
+  user_id: 'user_id',
+  product_id: 'product_id',
+  quantity: 'quantity'
+};
+
+exports.Prisma.WishlistScalarFieldEnum = {
+  wishlist_id: 'wishlist_id',
+  user_id: 'user_id',
+  product_id: 'product_id'
+};
+
+exports.Prisma.ProductScalarFieldEnum = {
+  product_id: 'product_id',
+  vendor_id: 'vendor_id',
+  category_id: 'category_id',
+  product_name: 'product_name',
+  product_title: 'product_title',
+  product_description: 'product_description',
+  product_price: 'product_price',
+  discount_price: 'discount_price',
+  product_guide: 'product_guide',
+  is_available: 'is_available',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ImageScalarFieldEnum = {
+  image_id: 'image_id',
+  product_id: 'product_id',
+  img_url: 'img_url'
+};
+
+exports.Prisma.CategoryScalarFieldEnum = {
+  category_id: 'category_id',
+  category_name: 'category_name',
+  category_description: 'category_description',
+  category_icon: 'category_icon'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -112,9 +190,22 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
-  Admin: 'Admin'
+  Admin: 'Admin',
+  Vendor: 'Vendor',
+  User: 'User',
+  Address: 'Address',
+  Cart: 'Cart',
+  Wishlist: 'Wishlist',
+  Product: 'Product',
+  Image: 'Image',
+  Category: 'Category'
 };
 /**
  * Create the Client
@@ -155,7 +246,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -164,13 +254,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Admin {\n  id       String @id\n  name     String\n  email    String @unique\n  password String\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
-  "inlineSchemaHash": "39376a7a4ae07aa42d36fcbb36f24d70a572c5522852cc8b174e7e2811302756",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Admin {\n  id       String @id\n  name     String\n  email    String @unique\n  password String\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Vendor {\n  id              String   @id\n  name            String\n  email           String   @unique\n  password        String\n  shopName        String\n  shopAddress     String\n  shopDescription String\n  bankName        String\n  IFSC            String\n  accountNumber   String\n  vendorTag       String?\n  isFeatured      Boolean  @default(false)\n  isVerified      Boolean  @default(false)\n  status          String   @default(\"pending\")\n  createdAt       DateTime @default(now())\n  updatedAt       DateTime @updatedAt\n\n  products Product[]\n}\n\nmodel User {\n  user_id       String @id\n  username      String\n  user_email    String @unique\n  user_password String\n\n  addresses Address[]\n  cart      Cart[]\n  wishlist  Wishlist[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Address {\n  address_id Int    @id @default(autoincrement())\n  user_id    String\n  user       User   @relation(fields: [user_id], references: [user_id])\n  address    String\n  city       String\n  state      String\n  pincode    String\n}\n\nmodel Cart {\n  cart_id    Int     @id @default(autoincrement())\n  user_id    String\n  user       User    @relation(fields: [user_id], references: [user_id])\n  product_id String\n  product    Product @relation(fields: [product_id], references: [product_id])\n  quantity   Int\n}\n\nmodel Wishlist {\n  wishlist_id Int     @id @default(autoincrement())\n  user_id     String\n  user        User    @relation(fields: [user_id], references: [user_id])\n  product_id  String\n  product     Product @relation(fields: [product_id], references: [product_id])\n}\n\nmodel Product {\n  product_id String @id @default(uuid())\n  vendor_id  String\n  vendor     Vendor @relation(fields: [vendor_id], references: [id])\n\n  category_id Int\n  category    Category @relation(fields: [category_id], references: [category_id])\n\n  product_name        String\n  product_title       String\n  product_description String\n  product_price       Decimal\n  discount_price      Decimal?\n  product_guide       String?\n  is_available        Boolean  @default(true) // Typo fix: avaliable -> available check? User said \"is_avaliable\". I will use \"is_available\" (correct spelling) but map if needed. I'll stick to correct spelling.\n\n  images        Image[]\n  cartItems     Cart[]\n  wishlistItems Wishlist[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Image {\n  image_id   Int     @id @default(autoincrement())\n  product_id String\n  product    Product @relation(fields: [product_id], references: [product_id])\n  img_url    String\n}\n\nmodel Category {\n  category_id          Int    @id @default(autoincrement())\n  category_name        String\n  category_description String\n  category_icon        String\n\n  products Product[]\n}\n",
+  "inlineSchemaHash": "493ab274877e24233742d9a95e290c83b9914dd8e9959e8947256a81ddaab673",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Admin\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Admin\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Vendor\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"shopName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"shopAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"shopDescription\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bankName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IFSC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accountNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"vendorTag\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isFeatured\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isVerified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"products\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductToVendor\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user_email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user_password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"addresses\",\"kind\":\"object\",\"type\":\"Address\",\"relationName\":\"AddressToUser\"},{\"name\":\"cart\",\"kind\":\"object\",\"type\":\"Cart\",\"relationName\":\"CartToUser\"},{\"name\":\"wishlist\",\"kind\":\"object\",\"type\":\"Wishlist\",\"relationName\":\"UserToWishlist\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Address\":{\"fields\":[{\"name\":\"address_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AddressToUser\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"city\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"state\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"pincode\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Cart\":{\"fields\":[{\"name\":\"cart_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CartToUser\"},{\"name\":\"product_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"CartToProduct\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"Wishlist\":{\"fields\":[{\"name\":\"wishlist_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToWishlist\"},{\"name\":\"product_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductToWishlist\"}],\"dbName\":null},\"Product\":{\"fields\":[{\"name\":\"product_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"vendor_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"vendor\",\"kind\":\"object\",\"type\":\"Vendor\",\"relationName\":\"ProductToVendor\"},{\"name\":\"category_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"category\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"CategoryToProduct\"},{\"name\":\"product_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"product_title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"product_description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"product_price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"discount_price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"product_guide\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_available\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"images\",\"kind\":\"object\",\"type\":\"Image\",\"relationName\":\"ImageToProduct\"},{\"name\":\"cartItems\",\"kind\":\"object\",\"type\":\"Cart\",\"relationName\":\"CartToProduct\"},{\"name\":\"wishlistItems\",\"kind\":\"object\",\"type\":\"Wishlist\",\"relationName\":\"ProductToWishlist\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Image\":{\"fields\":[{\"name\":\"image_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"product_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ImageToProduct\"},{\"name\":\"img_url\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Category\":{\"fields\":[{\"name\":\"category_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"category_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category_description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category_icon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"products\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"CategoryToProduct\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

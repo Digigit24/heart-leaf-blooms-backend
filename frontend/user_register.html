@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Heart Leaf Blooms</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f7fff7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #2d6a4f;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1b4332;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .link a {
+            color: #2d6a4f;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>Create Account</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Full Name" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="user_email" placeholder="Email Address" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="user_password" placeholder="Password" required>
+            </div>
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+            <p style="margin-bottom: 10px; font-size: 0.9rem; color: #666">Address (Optional)</p>
+            <div class="form-group">
+                <input type="text" name="address" placeholder="Street Address">
+            </div>
+            <div class="form-group">
+                <input type="text" name="city" placeholder="City">
+            </div>
+            <div class="form-group">
+                <input type="text" name="state" placeholder="State">
+            </div>
+            <div class="form-group">
+                <input type="text" name="pincode" placeholder="Pincode">
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+        <div class="link">
+            Already have an account? <a href="user_login.html">Login</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            // Format address if provided
+            const addressData = {
+                address: data.address,
+                city: data.city,
+                state: data.state,
+                pincode: data.pincode
+            };
+
+            const payload = {
+                username: data.username,
+                user_email: data.user_email,
+                user_password: data.user_password,
+            };
+
+            // Only add address if fields are filled (basic check)
+            if (data.address && data.city) {
+                payload.user_address = addressData;
+            }
+
+            try {
+                const res = await fetch('http://localhost:7071/user/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert('Registration Successful!');
+                    window.location.href = 'user_login.html';
+                } else {
+                    const err = await res.json();
+                    alert(err.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Something went wrong');
+            }
+        });
+    </script>
+</body>
+
+</html>

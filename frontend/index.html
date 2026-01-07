@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Leaf Blooms - Home</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root {
+            --primary: #2d6a4f;
+            --secondary: #d8f3dc;
+            --bg: #fff;
+            --text: #1b4332;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(255, 255, 255, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .btn-auth {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-auth:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(to bottom, #d8f3dc 0%, #fff 100%);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            color: #555;
+        }
+
+        /* Category Section */
+        .section {
+            padding: 60px 5%;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2rem;
+        }
+
+        .category-scroll {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .category-card {
+            min-width: 150px;
+            text-align: center;
+            cursor: pointer;
+            padding: 20px;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            background: var(--secondary);
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-cat {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            margin: 5px 0;
+            font-weight: 600;
+        }
+
+        .product-price {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .add-cart-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .add-cart-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">Heart Leaf Blooms</a>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="#">Shop</a>
+            <a href="user_login.html" class="btn-auth" id="loginBtn">Login</a>
+            <span id="userGreeting" style="display:none; color: var(--primary); font-weight: 600"></span>
+            <a href="#" onclick="logout()" id="logoutBtn" style="display:none">Logout</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Nature for your Home</h1>
+        <p>Discover our curated collection of plants and flowers to brighten your space.</p>
+    </header>
+
+    <div class="section">
+        <h2 class="section-title">Shop by Category</h2>
+        <div class="category-scroll" id="categoryList">
+            <!-- Categories -->
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Featured Products</h2>
+        <div class="product-grid" id="productList">
+            <!-- Products -->
+        </div>
+    </div>
+
+    <script>
+        // Check Auth
+        const userId = localStorage.getItem('user_id');
+        const userName = localStorage.getItem('user_name');
+
+        if (userId) {
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('userGreeting').style.display = 'inline';
+            document.getElementById('userGreeting').innerText = `Hi, ${userName}`;
+            document.getElementById('logoutBtn').style.display = 'inline';
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.reload();
+        }
+
+        async function init() {
+            // Load Categories
+            try {
+                const catRes = await fetch('http://localhost:7071/category');
+                const categories = await catRes.json();
+                const catContainer = document.getElementById('categoryList');
+
+                categories.forEach(cat => {
+                    const el = document.createElement('div');
+                    el.className = 'category-card';
+                    el.innerHTML = `<h4>${cat.category_name}</h4>`;
+                    el.onclick = () => filterByCategory(cat.category_id);
+                    catContainer.appendChild(el);
+                });
+            } catch (e) { console.error(e); }
+
+            // Load Products
+            loadProducts();
+        }
+
+        async function loadProducts(categoryId = null) {
+            try {
+                let url = 'http://localhost:7071/product';
+                if (categoryId) url = `http://localhost:7071/product/category/${categoryId}`;
+
+                const res = await fetch(url);
+                const products = await res.json();
+                const container = document.getElementById('productList');
+                container.innerHTML = '';
+
+                products.forEach(p => {
+                    const img = (p.images && p.images.length) ? p.images[0].img_url : 'https://via.placeholder.com/400x500';
+
+                    const el = document.createElement('div');
+                    el.className = 'product-card';
+                    el.innerHTML = `
+                        <img src="${img}" class="product-img" alt="${p.product_name}">
+                        <div class="product-info">
+                            <div class="product-cat">${p.category ? p.category.category_name : 'Plant'}</div>
+                            <div class="product-name">${p.product_name}</div>
+                            <div class="product-price">₹${p.product_price}</div>
+                        </div>
+                        <button class="add-cart-btn" onclick="addToCart('${p.product_id}')">+</button>
+                    `;
+                    container.appendChild(el);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function filterByCategory(id) {
+            loadProducts(id);
+        }
+
+        async function addToCart(productId) {
+            if (!userId) {
+                alert('Please login first');
+                window.location.href = 'user_login.html';
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:7071/user/${userId}/cart`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId, quantity: 1 })
+                });
+
+                if (res.ok) alert('Added to cart!');
+                else alert('Failed to add');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        init();
+    </script>
+
+</body>
+
+</html>

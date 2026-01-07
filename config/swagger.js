@@ -10,7 +10,7 @@ const options = {
         },
         servers: [
             {
-                url: 'http://localhost:3000', // Update this based on your actual PORT if needed
+                url: 'http://localhost:7071', // Update this based on your actual PORT if needed
                 description: 'Development server',
             },
         ],

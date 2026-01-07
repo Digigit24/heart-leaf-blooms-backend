@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Admin - Heart Leaf Blooms</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #37474f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #37474f;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #546e7a;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #455a64;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            color: red;
+            display: none;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #78909c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>Create Admin</h2>
+        <form id="createForm">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">Create Admin</button>
+            <div id="message" class="message"></div>
+        </form>
+        <a href="admin_login.html" class="link">Back to Login</a>
+    </div>
+
+    <script>
+        document.getElementById('createForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://localhost:7071/admin/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok || response.status === 201) {
+                    const msg = document.getElementById('message');
+                    msg.textContent = "Admin Created Successfully!";
+                    msg.className = "message success";
+                    msg.style.display = 'block';
+                    setTimeout(() => window.location.href = 'admin_login.html', 1500);
+                } else {
+                    throw new Error(result.error || 'Failed to create admin');
+                }
+            } catch (error) {
+                const msg = document.getElementById('message');
+                msg.textContent = error.message;
+                msg.className = "message";
+                msg.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+
+</html>

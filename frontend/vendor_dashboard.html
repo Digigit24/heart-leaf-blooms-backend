@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard - Heart Leaf Blooms</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+
+        :root {
+            --primary: #2d6a4f;
+            --secondary: #d8f3dc;
+            --accent: #ffb7b2;
+            --text: #1b4332;
+            --bg: #f7fff7;
+            --card-bg: #ffffff;
+            --danger: #e63946;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-links button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text);
+            margin-left: 20px;
+            transition: 0.3s;
+        }
+
+        .nav-links button:hover {
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 106, 79, 0.2);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-img {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .product-details {
+            padding: 20px;
+        }
+
+        .product-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <h1>Vendor Dashboard</h1>
+        <div class="nav-links">
+            <span id="vendorName">Welcome</span>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section-header">
+            <h2>My Products</h2>
+            <button class="btn btn-primary" onclick="openModal()">+ Add Product</button>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            <!-- Products will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px">Add New Product</h2>
+            <form id="productForm">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" name="product_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="product_title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="product_description" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Product Guide</label>
+                    <textarea name="product_guide" rows="3" placeholder="Care instructions, etc."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number" name="product_price" required>
+                </div>
+                <div class="form-group">
+                    <label>Discount Price</label>
+                    <input type="number" name="discount_price">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category_id" id="categorySelect" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Images</label>
+                    <input type="file" name="product_images" multiple accept="image/*">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" style="width: 100%">Create Product</button>
+                    <button type="button" class="btn" style="width: 100%; margin-top: 10px; background: #eee"
+                        onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const VENDOR_ID = localStorage.getItem('vendor_id');
+        const TOKEN = localStorage.getItem('vendor_token');
+
+        if (!VENDOR_ID || !TOKEN) {
+            window.location.href = 'vendor_login.html';
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await fetch('http://localhost:7071/category');
+                const categories = await res.json();
+                const select = document.getElementById('categorySelect');
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.category_id;
+                    option.innerText = cat.category_name;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Failed to load categories', err);
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const res = await fetch(`http://localhost:7071/product/vendor/${VENDOR_ID}`);
+                const products = await res.json();
+                const grid = document.getElementById('productGrid');
+                grid.innerHTML = '';
+
+                products.forEach(product => {
+                    // Get first image or placeholder
+                    const imgUrl = (product.images && product.images.length > 0) ? product.images[0].img_url : 'https://via.placeholder.com/300';
+                    console.log('Product Image:', imgUrl); // Debug
+
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <img src="${imgUrl}" class="product-img" alt="${product.product_name}">
+                        <div class="product-details">
+                            <h3 class="product-title">${product.product_name}</h3>
+                            <p class="product-price">₹${product.product_price}</p>
+                            <div class="product-actions">
+                                <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.9rem">Edit</button>
+                                <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.9rem" onclick="deleteProduct('${product.product_id}')">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Failed to load products', err);
+            }
+        }
+
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('vendor_id', VENDOR_ID);
+
+            try {
+                const res = await fetch('http://localhost:7071/product', {
+                    method: 'POST',
+                    body: formData // No headers needed, browser sets multipart
+                });
+
+                if (res.ok) {
+                    alert('Product Created!');
+                    closeModal();
+                    loadProducts();
+                    e.target.reset();
+                } else {
+                    const error = await res.json();
+                    alert('Error: ' + error.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Details: ' + err.message);
+            }
+        });
+
+        async function deleteProduct(id) {
+            if (!confirm('Are you sure?')) return;
+            try {
+                const res = await fetch(`http://localhost:7071/product/${id}`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) loadProducts();
+            } catch (err) {
+                alert('Failed to delete');
+            }
+        }
+
+        function openModal() {
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('vendor_id');
+            localStorage.removeItem('vendor_token');
+            window.location.href = 'vendor_login.html';
+        }
+
+        // Init
+        loadCategories();
+        loadProducts();
+
+        // Close modal on click outside
+        window.onclick = function (event) {
+            if (event.target == document.getElementById('productModal')) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+
+</html>
