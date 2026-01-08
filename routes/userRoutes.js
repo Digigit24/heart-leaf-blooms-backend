@@ -7,8 +7,6 @@ const {
     updateUser,
     deleteUser,
     addAddress,
-    addToCart,
-    addToWishlist,
     getAllUsers
 } = require("../controllers/userControllers");
 
@@ -282,73 +280,5 @@ router.delete("/:id", deleteUser);
  */
 router.post("/:id/address", addAddress);
 
-/**
- * @swagger
- * /user/{id}/cart:
- *   post:
- *     summary: Add item to user cart
- *     tags: [User]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - product_id
- *               - quantity
- *             properties:
- *               product_id:
- *                 type: string
- *               quantity:
- *                 type: integer
- *     responses:
- *       201:
- *         description: Item added to cart
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Cart'
- */
-router.post("/:id/cart", addToCart);
-
-/**
- * @swagger
- * /user/{id}/wishlist:
- *   post:
- *     summary: Add item to user wishlist
- *     tags: [User]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - product_id
- *             properties:
- *               product_id:
- *                 type: string
- *     responses:
- *       201:
- *         description: Item added to wishlist
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Wishlist'
- */
-router.post("/:id/wishlist", addToWishlist);
-
+// Cart and Wishlist routes moved to separate files
 module.exports = router;
