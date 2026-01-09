@@ -158,12 +158,13 @@ const deleteVendor = async (req, res) => {
 const approveVendor = async (req, res) => {
     try {
         const { id } = req.params; // admin passes vendor id
-        const { vendorTag, isFeatured, isVerified, status } = req.body;
+        const { vendorTag, isFeatured, isVerified, status, commission_rate } = req.body;
 
         const data = {};
         if (vendorTag !== undefined) data.vendorTag = vendorTag;
         if (isFeatured !== undefined) data.isFeatured = isFeatured;
         if (isVerified !== undefined) data.isVerified = isVerified;
+        if (commission_rate !== undefined) data.commission_rate = commission_rate;
         if (status !== undefined) data.status = status;
         else data.status = "approved"; // Default to approved if calling this endpoint
 

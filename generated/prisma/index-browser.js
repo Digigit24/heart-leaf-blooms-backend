@@ -208,6 +208,50 @@ exports.Prisma.CategoryScalarFieldEnum = {
   category_icon: 'category_icon'
 };
 
+exports.Prisma.OrderScalarFieldEnum = {
+  order_id: 'order_id',
+  user_id: 'user_id',
+  total_amount: 'total_amount',
+  payment_status: 'payment_status',
+  order_status: 'order_status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderItemScalarFieldEnum = {
+  order_item_id: 'order_item_id',
+  order_id: 'order_id',
+  product_id: 'product_id',
+  vendor_id: 'vendor_id',
+  price: 'price',
+  quantity: 'quantity',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CommissionScalarFieldEnum = {
+  id: 'id',
+  vendor_id: 'vendor_id',
+  order_id: 'order_id',
+  commission_amount: 'commission_amount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PaymentScalarFieldEnum = {
+  payment_id: 'payment_id',
+  order_id: 'order_id',
+  vendor_id: 'vendor_id',
+  amount: 'amount',
+  payment_method: 'payment_method',
+  payment_status: 'payment_status',
+  payment_type: 'payment_type',
+  transaction_id: 'transaction_id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -233,7 +277,11 @@ exports.Prisma.ModelName = {
   Wishlist: 'Wishlist',
   Product: 'Product',
   Image: 'Image',
-  Category: 'Category'
+  Category: 'Category',
+  Order: 'Order',
+  OrderItem: 'OrderItem',
+  Commission: 'Commission',
+  Payment: 'Payment'
 };
 
 /**

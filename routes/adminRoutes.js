@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createAdmin, loginAdmin, displayAdmin, updateAdmin } = require('../controllers/adminCotrollers');
+const { createAdmin, loginAdmin, displayAdmin, updateAdmin, getVendorPayoutStats } = require('../controllers/adminCotrollers');
 
 /**
  * @swagger
@@ -137,5 +137,19 @@ router.get('/display/:id', displayAdmin);
  *         description: Server error
  */
 router.put('/update/:id', updateAdmin);
+
+router.put('/update/:id', updateAdmin);
+
+/**
+ * @swagger
+ * /admin/payout-stats:
+ *   get:
+ *     summary: Get vendor payout statistics
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: List of vendor stats
+ */
+router.get('/payout-stats', getVendorPayoutStats);
 
 module.exports = router;

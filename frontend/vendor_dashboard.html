@@ -225,16 +225,26 @@
 
     <div class="container">
         <div class="section-header">
-            <h2>My Products</h2>
-            <button class="btn btn-primary" onclick="openModal()">+ Add Product</button>
+            <h2>Dashboard</h2>
+            <div>
+                <button class="btn btn-primary" onclick="showProducts()">Products</button>
+                <button class="btn btn-primary" onclick="showOrders()">Orders</button>
+                <button class="btn btn-primary" onclick="openModal()" id="btnAddProduct">+ Add Product</button>
+            </div>
         </div>
 
-        <div class="product-grid" id="productGrid">
-            <!-- Products will be loaded here -->
+        <div id="productsSection">
+            <h3 style="margin-bottom: 20px;">My Products</h3>
+            <div class="product-grid" id="productGrid"></div>
+        </div>
+
+        <div id="ordersSection" style="display:none">
+            <h3 style="margin-bottom: 20px;">My Orders</h3>
+            <div id="orderList" style="display: flex; flex-direction: column; gap: 20px;"></div>
         </div>
     </div>
 
-    <!-- Add Product Modal -->
+    <!-- ... (Modal remains same) ... -->
     <div class="modal" id="productModal">
         <div class="modal-content">
             <h2 style="margin-bottom: 20px">Add New Product</h2>
@@ -290,6 +300,86 @@
             window.location.href = 'vendor_login.html';
         }
 
+        function showProducts() {
+            document.getElementById('productsSection').style.display = 'block';
+            document.getElementById('ordersSection').style.display = 'none';
+            document.getElementById('btnAddProduct').style.display = 'inline-block';
+            loadProducts();
+        }
+
+        function showOrders() {
+            document.getElementById('productsSection').style.display = 'none';
+            document.getElementById('ordersSection').style.display = 'block';
+            document.getElementById('btnAddProduct').style.display = 'none';
+            loadOrders();
+        }
+
+        async function loadOrders() {
+            try {
+                const res = await fetch(`http://localhost:7071/order/vendor/${VENDOR_ID}`);
+                const orders = await res.json();
+                const container = document.getElementById('orderList');
+                container.innerHTML = '';
+
+                if (orders.length === 0) {
+                    container.innerHTML = '<p>No orders yet.</p>';
+                    return;
+                }
+
+                orders.forEach(order => {
+                    // Each 'order' here is a grouped view from the controller
+                    const orderDiv = document.createElement('div');
+                    orderDiv.style.background = 'white';
+                    orderDiv.style.padding = '20px';
+                    orderDiv.style.borderRadius = '12px';
+                    orderDiv.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)';
+
+                    let itemsHtml = '';
+                    order.vendor_items.forEach(item => {
+                        itemsHtml += `
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0;">
+                                <span>${item.product.product_name} (x${item.quantity})</span>
+                                <div>
+                                    <span style="font-weight: bold;">₹${item.price}</span>
+                                    <span style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem; background: #eee; border-radius: 4px;">${item.status}</span>
+                                    ${item.status !== 'shipped' ? `<button onclick="shipItem('${item.item_id}')" style="margin-left: 10px; cursor: pointer;">Mark Shipped</button>` : ''}
+                                </div>
+                            </div>
+                         `;
+                    });
+
+                    orderDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                             <h4 style="margin:0;">Order #${order.order_id.substring(0, 8)}</h4>
+                             <span style="color: #666;">${new Date(order.order_date).toLocaleDateString()}</span>
+                        </div>
+                        <div style="margin-bottom: 10px; font-size: 0.9rem;">
+                            <strong>Customer:</strong> ${order.user.username} (${order.user.user_email})
+                        </div>
+                        <div style="background: #f9f9f9; padding: 10px; border-radius: 8px;">
+                            ${itemsHtml}
+                        </div>
+                        <div style="text-align: right; margin-top: 10px; font-weight: bold;">
+                            Total Revenue: ₹${order.vendor_total}
+                        </div>
+                    `;
+                    container.appendChild(orderDiv);
+                });
+
+            } catch (e) { console.error(e); }
+        }
+
+        async function shipItem(itemId) {
+            try {
+                await fetch(`http://localhost:7071/order/item/${itemId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'shipped' })
+                });
+                loadOrders();
+            } catch (e) { console.error(e); }
+        }
+
         async function loadCategories() {
             try {
                 const res = await fetch('http://localhost:7071/category');
@@ -316,7 +406,7 @@
                 products.forEach(product => {
                     // Get first image or placeholder
                     const imgUrl = (product.images && product.images.length > 0) ? product.images[0].img_url : 'https://via.placeholder.com/300';
-                    console.log('Product Image:', imgUrl); // Debug
+                    // console.log('Product Image:', imgUrl); // Debug
 
                     const card = document.createElement('div');
                     card.className = 'product-card';

@@ -160,23 +160,28 @@
 <body>
     <div class="sidebar">
         <h2>Admin Panel</h2>
-        <button onclick="showSection('vendors')" class="active" id="btn-vendors">Vendors</button>
+        <button onclick="showSection('vendors')" class="active" id="btn-vendors">Vendor Requests</button>
         <button onclick="showSection('categories')" id="btn-categories">Categories</button>
+        <button onclick="showSection('orders')" id="btn-orders">Orders</button>
+        <button onclick="showSection('payouts')" id="btn-payouts">Payouts</button>
         <button onclick="logout()" style="margin-top: auto;">Logout</button>
     </div>
 
     <div class="main-content">
         <div id="section-vendors">
             <div class="header">
-                <h1>Vendor Management</h1>
+                <h1>Vendor Requests</h1>
             </div>
             <table>
                 <thead>
                     <tr>
+                        <th>Vendor ID</th>
                         <th>Name</th>
                         <th>Shop</th>
+                        <th>Address</th>
                         <th>Email</th>
                         <th>Status</th>
+                        <th>Commission Rate</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -203,6 +208,68 @@
                 <tbody id="categoryList"></tbody>
             </table>
         </div>
+
+        <div id="section-orders" style="display:none">
+            <div class="header">
+                <h1>Order Management</h1>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="orderList"></tbody>
+            </table>
+        </div>
+
+        <div id="section-payouts" style="display:none">
+            <div class="header">
+                <h1>Vendor Payouts</h1>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vendor</th>
+                        <th>Bank Details</th>
+                        <th>Total Requests Sales</th>
+                        <th>Commission Deducted</th>
+                        <th>Paid Out</th>
+                        <th>Balance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="payoutList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payout Modal -->
+    <div id="payoutModal"
+        style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+        <div class="modal-body">
+            <h3>Process Payout</h3>
+            <p id="payoutVendorName"></p>
+            <input type="hidden" id="payoutVendorId">
+            <label>Amount to Pay</label>
+            <input type="number" id="payoutAmount" placeholder="Amount">
+            <label>Payment Method</label>
+            <select id="payoutMethod"
+                style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="upi">UPI</option>
+                <option value="check">Check</option>
+                <option value="cash">Cash</option>
+            </select>
+            <button onclick="submitPayout()"
+                style="padding: 10px; width: 100%; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">Pay</button>
+            <button onclick="closePayoutModal()"
+                style="padding: 10px; width: 100%; background: #eee; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Cancel</button>
+        </div>
     </div>
 
     <div id="catModal">
@@ -224,27 +291,34 @@
         function showSection(id) {
             document.getElementById('section-vendors').style.display = id === 'vendors' ? 'block' : 'none';
             document.getElementById('section-categories').style.display = id === 'categories' ? 'block' : 'none';
+            document.getElementById('section-orders').style.display = id === 'orders' ? 'block' : 'none';
+            document.getElementById('section-payouts').style.display = id === 'payouts' ? 'block' : 'none';
 
             document.getElementById('btn-vendors').classList.toggle('active', id === 'vendors');
             document.getElementById('btn-categories').classList.toggle('active', id === 'categories');
+            document.getElementById('btn-orders').classList.toggle('active', id === 'orders');
+            document.getElementById('btn-payouts').classList.toggle('active', id === 'payouts');
 
             if (id === 'vendors') loadVendors();
             if (id === 'categories') loadCategories();
+            if (id === 'orders') loadOrders();
+            if (id === 'payouts') loadPayouts();
         }
 
         async function toggleVendorStatus(id) {
             try {
-                // Determine current status or just approve for now. Logic in controller toggles or sets to approved if status sent.
-                // Let's just default to approving for this button invocation, or maybe we can check the badge.
-                // Ideally, we pass the desired status.
-
-                // For simplicity, let's assume we are Approving if pending.
-                // We'll reload the table after.
+                // Determine rate if input exists
+                const rateInput = document.getElementById(`rate-${id}`);
+                const commission_rate = rateInput ? parseFloat(rateInput.value) : 0.10;
 
                 const res = await fetch(`http://localhost:7071/vendor/approve/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'approved', isVerified: true })
+                    body: JSON.stringify({
+                        status: 'approved',
+                        isVerified: true,
+                        commission_rate: commission_rate
+                    })
                 });
 
                 if (res.ok) {
@@ -265,10 +339,15 @@
                 vendors.forEach(v => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
+                        <td>${v.id}</td>
                         <td>${v.name}</td>
                         <td>${v.shopName}</td>
+                        <td>${v.shopAddress}</td>
                         <td>${v.email}</td>
                         <td><span class="status-badge ${v.status}">${v.status}</span></td>
+                        <td>
+                            ${v.status === 'pending' ? `<input type="number" id="rate-${v.id}" step="0.01" value="0.10" style="width: 80px; margin-bottom: 0;">` : (v.commission_rate || '0.10')}
+                        </td>
                         <td>
                              <button onclick="toggleVendorStatus('${v.id}')">${v.status === 'pending' ? 'Approve' : 'Reject'}</button>
                         </td>
@@ -302,6 +381,42 @@
             } catch (e) { console.error(e); }
         }
 
+        async function loadOrders() {
+            try {
+                const res = await fetch('http://localhost:7071/order/admin');
+                const orders = await res.json();
+                const tbody = document.getElementById('orderList');
+                tbody.innerHTML = '';
+
+                orders.forEach(o => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${o.order_id.substring(0, 8)}...</td>
+                        <td>${o.user ? o.user.username : 'Unknown'}</td>
+                        <td>₹${o.total_amount}</td>
+                        <td><span class="status-badge ${o.order_status}">${o.order_status}</span></td>
+                        <td>
+                             <button onclick="updateOrderStatus('${o.order_id}', 'approved')">Approve</button>
+                             <button onclick="updateOrderStatus('${o.order_id}', 'shipped')">Ship</button>
+                             <button onclick="updateOrderStatus('${o.order_id}', 'completed')">Complete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function updateOrderStatus(id, status) {
+            try {
+                await fetch(`http://localhost:7071/order/admin/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                loadOrders();
+            } catch (e) { console.error(e); }
+        }
+
         function openCatModal() { document.getElementById('catModal').style.display = 'flex'; }
         function closeCatModal() { document.getElementById('catModal').style.display = 'none'; }
 
@@ -328,6 +443,70 @@
 
         function logout() {
             window.location.href = 'admin_login.html';
+        }
+
+        async function loadPayouts() {
+            try {
+                const res = await fetch('http://localhost:7071/admin/payout-stats');
+                const stats = await res.json();
+                const tbody = document.getElementById('payoutList');
+                tbody.innerHTML = '';
+
+                stats.forEach(s => {
+                    const v = s.vendor;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${v.name}<br><small>${v.shopName}</small></td>
+                        <td>${v.bankName || '-'}<br>${v.accountNumber || '-'} (${v.IFSC || '-'})</td>
+                        <td>₹${s.totalSales.toFixed(2)}</td>
+                        <td>₹${s.totalCommission.toFixed(2)}</td>
+                        <td>₹${s.totalPaid.toFixed(2)}</td>
+                        <td style="font-weight:bold; color: ${s.balance > 0 ? 'red' : 'green'}">₹${s.balance.toFixed(2)}</td>
+                        <td>
+                            <button onclick="openPayoutModal('${v.id}', '${v.name}', ${s.balance})" ${s.balance <= 0 ? 'disabled' : ''}>Pay</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function openPayoutModal(vId, vName, balance) {
+            document.getElementById('payoutVendorId').value = vId;
+            document.getElementById('payoutVendorName').innerText = `Paying to: ${vName}`;
+            document.getElementById('payoutAmount').value = balance;
+            document.getElementById('payoutModal').style.display = 'flex';
+        }
+
+        function closePayoutModal() {
+            document.getElementById('payoutModal').style.display = 'none';
+        }
+
+        async function submitPayout() {
+            const vId = document.getElementById('payoutVendorId').value;
+            const amount = document.getElementById('payoutAmount').value;
+            const method = document.getElementById('payoutMethod').value;
+
+            if (!amount || amount <= 0) {
+                alert("Invalid amount");
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:7071/payment/vendor-payout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ vendor_id: vId, amount: amount, payment_method: method })
+                });
+
+                if (res.ok) {
+                    alert('Payout Recorded!');
+                    closePayoutModal();
+                    loadPayouts();
+                } else {
+                    alert('Error recording payout');
+                }
+            } catch (e) { console.error(e); }
         }
 
         // Init

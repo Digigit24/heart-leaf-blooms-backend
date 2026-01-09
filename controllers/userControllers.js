@@ -1,4 +1,4 @@
-const prisma = require("../config/prisma");
+ const prisma = require("../config/prisma");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
@@ -85,8 +85,24 @@ const getUser = async (req, res) => {
             where: { user_id: id },
             include: {
                 addresses: true,
-                cart: true,
-                wishlist: true
+                cart: {
+                    include: {
+                        product: {
+                            include: {
+                                images: true
+                            }
+                        }
+                    }
+                },
+                wishlist: {
+                    include: {
+                        product: {
+                            include: {
+                                images: true
+                            }
+                        }
+                    }
+                }
             }
         });
 
@@ -126,14 +142,6 @@ const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Due to foreign keys, cascade delete might be needed in schema or handled manually if not set.
-        // Assuming cascade is not set by default in Prisma without explicit relation mode or DB config,
-        // we might delete related data first usually, but Prisma supports cascade deletes if configured in schema.
-        // If not, this might fail if they have cart/wishlist items.
-        // Let's rely on Prisma's onDelete: Cascade if present, or just try to delete. 
-        // Based on the schema provided earlier without explicit onDelete, we might need to delete relations manually OR 
-        // hopefully the User model is the parent.
-
         // Manual cleanup to be safe
         await prisma.address.deleteMany({ where: { user_id: id } });
         await prisma.cart.deleteMany({ where: { user_id: id } });
@@ -171,45 +179,6 @@ const addAddress = async (req, res) => {
     }
 };
 
-// Add to Cart
-const addToCart = async (req, res) => {
-    try {
-        const { id } = req.params; // user_id
-        const { product_id, quantity } = req.body;
-
-        const newItem = await prisma.cart.create({
-            data: {
-                user_id: id,
-                product_id,
-                quantity: parseInt(quantity)
-            }
-        });
-
-        res.status(201).json({ message: "Added to cart", item: newItem });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-// Add to Wishlist
-const addToWishlist = async (req, res) => {
-    try {
-        const { id } = req.params; // user_id
-        const { product_id } = req.body;
-
-        const newItem = await prisma.wishlist.create({
-            data: {
-                user_id: id,
-                product_id
-            }
-        });
-
-        res.status(201).json({ message: "Added to wishlist", item: newItem });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
 // Get All Users (Admin)
 const getAllUsers = async (req, res) => {
     try {
@@ -233,7 +202,5 @@ module.exports = {
     updateUser,
     deleteUser,
     addAddress,
-    addToCart,
-    addToWishlist,
     getAllUsers
 };

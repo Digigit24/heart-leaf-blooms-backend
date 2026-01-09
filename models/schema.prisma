@@ -42,8 +42,12 @@ model Vendor {
   status          String   @default("pending")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  commission_rate Decimal  @default(0.10)
 
   products        Product[]
+  orderItems      OrderItem[]
+  commissions     Commission[]
+  payments        Payment[]
 }
 
 model User {
@@ -55,6 +59,8 @@ model User {
   addresses     Address[]
   cart          Cart[]
   wishlist      Wishlist[]
+
+  orders        Order[]
 
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
@@ -106,6 +112,7 @@ model Product {
   images              Image[]
   cartItems           Cart[]
   wishlistItems       Wishlist[]
+  orderItems          OrderItem[]
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -125,4 +132,64 @@ model Category {
   category_icon        String
   
   products             Product[]
+}
+
+model Order {
+  order_id       String      @id @default(uuid())
+  user_id        String
+  user           User        @relation(fields: [user_id], references: [user_id])
+  // cart_id omitted as per standard practice (Cart items move to OrderItems)
+  total_amount   Decimal
+  payment_status String      @default("pending")
+  order_status   String      @default("pending")
+  
+  orderItems     OrderItem[]
+  commissions    Commission[]
+  payments       Payment[]
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model OrderItem {
+  order_item_id String   @id @default(uuid())
+  order_id      String
+  order         Order    @relation(fields: [order_id], references: [order_id])
+  product_id    String
+  product       Product  @relation(fields: [product_id], references: [product_id])
+  vendor_id     String
+  vendor        Vendor   @relation(fields: [vendor_id], references: [id])
+  
+  price         Decimal
+  quantity      Int
+  status        String   @default("pending")
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Commission {
+  id               String   @id @default(uuid())
+  vendor_id        String
+  vendor           Vendor   @relation(fields: [vendor_id], references: [id])
+  order_id         String
+  order            Order    @relation(fields: [order_id], references: [order_id])
+  commission_amount Decimal
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Payment {
+  payment_id       String   @id @default(uuid())
+  order_id         String?
+  order            Order?   @relation(fields: [order_id], references: [order_id])
+  vendor_id        String?
+  vendor           Vendor?  @relation(fields: [vendor_id], references: [id])
+  amount           Decimal
+  payment_method   String
+  payment_status   String   @default("pending")
+  payment_type     String   @default("order_payment") // "order_payment" or "vendor_payout"
+  transaction_id   String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Leaf Blooms - Wishlist</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root {
+            --primary: #2d6a4f;
+            --secondary: #d8f3dc;
+            --bg: #fff;
+            --text: #1b4332;
+            --danger: #ef233c;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(255, 255, 255, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Wishlist Page */
+        .container {
+            padding: 40px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 20px;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            margin: 5px 0;
+            font-weight: 600;
+        }
+
+        .product-price {
+            font-size: 1rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.5rem;
+            color: #888;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">Heart Leaf Blooms</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="#">Shop</a>
+            <a href="cart.html">Cart</a>
+            <a href="wishlist.html" style="color: var(--primary); font-weight: 700;">Wishlist</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>My Wishlist</h2>
+        </div>
+
+        <div id="loading" style="text-align: center;">Loading...</div>
+
+        <div class="wishlist-grid" id="wishlistContainer">
+            <!-- Items injected here -->
+        </div>
+    </div>
+
+    <script>
+        const userId = localStorage.getItem('user_id');
+
+        async function loadWishlist() {
+            if (!userId) {
+                alert('Please login to view your wishlist');
+                window.location.href = 'user_login.html';
+                return;
+            }
+
+            try {
+                // We need to fetch user details slightly differently to get Product info inside wishlist if not nested by default
+                // Checking userControllers.js: getUser includes wishlist: true.
+                // But does wishlist include product?
+                // The current getUser controller just says "wishlist: true".
+                // I need to update getUser to include product in wishlist as well.
+                // Wait, I can do a quick client-side fetch for product details or update backend. 
+                // Updating backend (controller) is better. 
+                // I'll assume I update the backend in next step for cleaner code.
+                // For now, let's try to fetch.
+
+                const res = await fetch(`http://localhost:7071/user/${userId}`);
+                if (!res.ok) throw new Error('Failed to fetch user');
+
+                const user = await res.json();
+                const wishlist = user.wishlist || [];
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (wishlist.length === 0) {
+                    document.getElementById('wishlistContainer').innerHTML = '<div class="empty-msg">Your wishlist is empty.</div>';
+                    return;
+                }
+
+                // IF backend doesn't return product details, we might need to fetch them one by one (inefficient) or update backend.
+                // Let's assume for now I will update backend to include product in wishlist.
+                // If the product object is missing, I'll show placeholder.
+
+                renderWishlist(wishlist);
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').innerText = 'Error loading wishlist.';
+            }
+        }
+
+        async function renderWishlist(items) {
+            const container = document.getElementById('wishlistContainer');
+            container.innerHTML = '';
+
+            // If product details are not included, we might need to fetch them. 
+            // ideally `items` has `product` object.
+
+            // Check if item.product exists (requires backend update)
+            // If not, we have to fetch product by ID.
+
+            for (const item of items) {
+                let product = item.product;
+                if (!product) {
+                    // Fallback fetch if backend not updated yet
+                    const pRes = await fetch(`http://localhost:7071/product/${item.product_id}`); // Assuming generic get product route exists or I search 
+                    // Wait, there isn't a single get product by ID route in my viewing?
+                    // productRoutes.js usually has it. 
+                    if (pRes.ok) product = await pRes.json();
+                }
+
+                if (!product) continue;
+
+                const img = (product.images && product.images.length) ? product.images[0].img_url : 'https://via.placeholder.com/200';
+
+                const div = document.createElement('div');
+                div.className = 'product-card';
+                div.innerHTML = `
+                    <button class="remove-btn" onclick="removeFromWishlist('${item.wishlist_id}')">×</button>
+                    <img src="${img}" class="product-img" alt="${product.product_name}">
+                    <div class="product-info">
+                        <div class="product-name">${product.product_name}</div>
+                        <div class="product-price">₹${product.product_price}</div>
+                        <button onclick="moveToCart('${product.product_id}', '${item.wishlist_id}')" style="margin-top:10px; padding:5px 10px; width:100%; cursor:pointer;">Add to Cart</button>
+                    </div>
+                 `;
+                container.appendChild(div);
+            }
+        }
+
+        async function removeFromWishlist(id) {
+            if (!confirm('Remove from wishlist?')) return;
+            try {
+                // New Route: DELETE /wishlist/:id/:wishlistId
+                const res = await fetch(`http://localhost:7071/wishlist/${userId}/${id}`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) loadWishlist();
+            } catch (e) { console.error(e); }
+        }
+
+        async function moveToCart(productId, wishlistId) {
+            // Add to cart
+            try {
+                // New Route: POST /cart/:id
+                const res = await fetch(`http://localhost:7071/cart/${userId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId, quantity: 1 })
+                });
+
+                if (res.ok) {
+                    // Remove from wishlist
+                    // New Route: DELETE /wishlist/:id/:wishlistId
+                    await fetch(`http://localhost:7071/wishlist/${userId}/${wishlistId}`, { method: 'DELETE' });
+                    alert('Moved to cart!');
+                    loadWishlist();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        loadWishlist();
+    </script>
+</body>
+
+</html>

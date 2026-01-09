@@ -108,9 +108,94 @@ const updateAdmin = async (req, res) => {
     }
 };
 
+const getVendorPayoutStats = async (req, res) => {
+    try {
+        const vendors = await prisma.vendor.findMany({
+            where: { status: 'approved' } // Only approved vendors
+        });
+
+        const stats = [];
+
+        for (const vendor of vendors) {
+            // 1. Total Sales (from OrderItems in paid orders)
+            // Ideally we should filter by payment_status of the order.
+            // For simplicity, we assume if OrderItem exists in Order w/ paid status.
+            const salesAgg = await prisma.orderItem.aggregate({
+                _sum: {
+                    price: true // We can't multiply in aggregate easily without raw query or iterating
+                },
+                where: {
+                    vendor_id: vendor.id,
+                    order: {
+                        payment_status: 'paid' // or success
+                    }
+                }
+            });
+
+            // Note: aggregate _sum price gives total price, but we need price * quantity.
+            // Prisma doesn't support multiplying cols in aggregate yet easily.
+            // We have to fetch or use raw query. Let's fetch for accuracy.
+            const items = await prisma.orderItem.findMany({
+                where: {
+                    vendor_id: vendor.id,
+                    order: {
+                        OR: [
+                            { payment_status: 'paid' },
+                            { payment_status: 'success' }
+                        ]
+                    }
+                },
+                select: { price: true, quantity: true }
+            });
+
+            const totalSales = items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+
+            // 2. Total Commission
+            const commAgg = await prisma.commission.aggregate({
+                _sum: {
+                    commission_amount: true
+                },
+                where: {
+                    vendor_id: vendor.id
+                }
+            });
+            const totalCommission = parseFloat(commAgg._sum.commission_amount || 0);
+
+            // 3. Total Paid Out
+            const paidAgg = await prisma.payment.aggregate({
+                _sum: {
+                    amount: true
+                },
+                where: {
+                    vendor_id: vendor.id,
+                    payment_type: 'vendor_payout'
+                }
+            });
+            const totalPaid = parseFloat(paidAgg._sum.amount || 0);
+
+            const balance = totalSales - totalCommission - totalPaid;
+
+            stats.push({
+                vendor,
+                totalSales: totalSales,
+                totalCommission: totalCommission,
+                totalPaid: totalPaid,
+                balance: balance
+            });
+        }
+
+        res.status(200).json(stats);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     createAdmin,
     loginAdmin,
     displayAdmin,
-    updateAdmin
+    updateAdmin,
+    getVendorPayoutStats
 };
